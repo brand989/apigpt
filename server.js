@@ -15,12 +15,46 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// Подключаем маршруты пользователей
+app.use("/api/users", require("./routes/userRoutes"));
+
 // Простая проверка сервера
 app.get("/", (req, res) => {
   res.send("API работает!");
 });
 
+let server;
+
 // Запуск сервера
-app.listen(PORT, () => {
+server = app.listen(PORT, () => {
   console.log(`Сервер запущен на порту ${PORT}`);
 });
+
+const mongoose = require("mongoose");
+
+mongoose.connection.once("open", async () => {
+  console.log("✅ Подключено к MongoDB");
+
+  const collections = await mongoose.connection.db.listCollections().toArray();
+  console.log("📂 Коллекции в базе данных:", collections.map(col => col.name));
+});
+
+
+
+
+// Обработчик закрытия сервера
+const shutdown = () => {
+  console.log("⏳ Завершение работы сервера...");
+  if (server) {
+    server.close(() => {
+      console.log("✅ Сервер остановлен");
+      process.exit(0);
+    });
+  } else {
+    process.exit(1);
+  }
+};
+
+// Ловим сигналы завершения процесса
+process.on("SIGINT", shutdown);  // При нажатии Ctrl + C
+process.on("SIGTERM", shutdown); // При завершении процесса (например, `kill PID`)
