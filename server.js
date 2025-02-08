@@ -9,6 +9,20 @@ const authRoutes = require("./routes/auth");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ✅ Попытка освободить порт перед запуском
+try {
+  console.log(`🔍 Проверяем порт ${PORT}...`);
+  const pid = execSync(`lsof -ti:${PORT} || netstat -vanp tcp | grep ${PORT} | awk '{print $9}'`).toString().trim();
+  if (pid) {
+    console.log(`⚠️  Найден процесс, занимающий порт ${PORT} (PID: ${pid}), завершаем...`);
+    execSync(`kill -9 ${pid}`);
+    console.log(`✅ Порт ${PORT} очищен!`);
+  }
+} catch (error) {
+  console.log("🔹 Порт свободен, запускаем сервер...");
+}
+
+
 // Подключаем БД
  connectDB();
 
@@ -66,3 +80,7 @@ const shutdown = () => {
 // Ловим сигналы завершения процесса
 process.on("SIGINT", shutdown);  // При нажатии Ctrl + C
 process.on("SIGTERM", shutdown); // При завершении процесса (например, `kill PID`)
+
+server.on("close", () => {
+  console.log("🔴 Сервер завершил работу");
+});
