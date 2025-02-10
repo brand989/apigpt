@@ -5,6 +5,7 @@ const cors = require("cors");
 require("dotenv").config();
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth");
+const { execSync } = require("child_process");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
