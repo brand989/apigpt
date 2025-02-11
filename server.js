@@ -35,6 +35,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 // Подключаем маршруты пользователей
 app.use("/api/users", require("./routes/userRoutes"));
+app.use("/api/messages", require("./routes/messageRoutes"));
 
 
 // Простая проверка сервера

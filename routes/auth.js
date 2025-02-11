@@ -8,6 +8,8 @@ const router = express.Router();
 // Авторизация пользователя
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
+  
+  console.log("🔍 Логин: ", username, "Пароль: ", password);
 
   try {
     // Ищем пользователя в базе
