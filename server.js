@@ -1,14 +1,17 @@
-console.log("Файл server.js запущен");
-
 const express = require("express");
+const WebSocket = require("ws");
+const http = require("http"); // Добавляем модуль http
 const cors = require("cors");
 require("dotenv").config();
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth");
 const { execSync } = require("child_process");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const server = http.createServer(app); // Создаем HTTP-сервер
+const wss = new WebSocket.Server({ server }); // Подключаем WS к HTTP-серверу
 
 // ✅ Попытка освободить порт перед запуском
 try {
@@ -23,20 +26,17 @@ try {
   console.log("🔹 Порт свободен, запускаем сервер...");
 }
 
-
 // Подключаем БД
- connectDB();
+connectDB();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
-
-app.use("/api/auth", authRoutes);
 // Подключаем маршруты пользователей
+app.use("/api/auth", authRoutes);
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/messages", require("./routes/messageRoutes"));
-
 
 // Простая проверка сервера
 app.get("/", (req, res) => {
@@ -45,13 +45,6 @@ app.get("/", (req, res) => {
 
 app.get("/api/status", (req, res) => {
   res.json({ message: "Сервер работает! 🚀" });
-});
-
-let server;
-
-// Запуск сервера
-server = app.listen(PORT, () => {
-  console.log(`Сервер запущен на порту ${PORT}`);
 });
 
 const mongoose = require("mongoose");
@@ -63,12 +56,53 @@ mongoose.connection.once("open", async () => {
   console.log("📂 Коллекции в базе данных:", collections.map(col => col.name));
 });
 
+// Настройка WebSocket с проверкой токена в заголовках
+wss.on("connection", (ws, req) => {
+  console.log("🔗 WebSocket-соединение запрашивается");
 
+  let authHeader = req.headers["sec-websocket-protocol"];
 
+  console.log("🔍 Все заголовки запроса:", req.headers);
+
+  if (!authHeader) {
+    ws.close();
+    return console.log("❌ Нет заголовка Sec-WebSocket-Protocol, соединение закрыто");
+  }
+
+  // Postman иногда передает несколько значений через запятую, берём последний
+  authHeader = authHeader.split(",").pop().trim();
+
+  if (!authHeader.startsWith("Bearer ")) {
+    ws.close();
+    return console.log("❌ Неверный формат токена, соединение закрыто");
+  }
+
+  const token = authHeader.replace("Bearer ", "").trim();
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    ws.user = decoded;
+    console.log("✅ Авторизованный пользователь подключился:", ws.user.userId);
+  } catch (error) {
+    ws.close();
+    return console.log("❌ Недействительный токен, соединение закрыто");
+  }
+});
+
+// Запуск сервера
+server.listen(PORT, () => {
+  console.log(`Сервер запущен на порту ${PORT}`);
+});
 
 // Обработчик закрытия сервера
 const shutdown = () => {
   console.log("⏳ Завершение работы сервера...");
+
+  wss.clients.forEach((client) => {
+    client.terminate(); // Принудительно закрываем соединение
+  });
+  wss.close();
+
   if (server) {
     server.close(() => {
       console.log("✅ Сервер остановлен");

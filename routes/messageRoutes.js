@@ -40,7 +40,11 @@ router.get("/:userId", protect, async (req, res) => {
             { sender: String(userId), recipient: String(req.user.userId) },
         ],
       }).sort({ createdAt: 1 }); // Сортируем по дате
-  
+      
+      if (messages.length === 0) {
+        return res.json({ message: "Сообщений пока нет" });
+      }
+
       res.json(messages);
     } catch (error) {
       console.error("Ошибка при получении сообщений:", error);
