@@ -1,5 +1,4 @@
 const express = require("express");
-const WebSocket = require("ws");
 const http = require("http"); // Добавляем модуль http
 const cors = require("cors");
 require("dotenv").config();
@@ -7,11 +6,11 @@ const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth");
 const { execSync } = require("child_process");
 const jwt = require("jsonwebtoken");
+const setupWebSocket = require("./websocket"); // Подключаем WebSocket
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const server = http.createServer(app); // Создаем HTTP-сервер
-const wss = new WebSocket.Server({ server }); // Подключаем WS к HTTP-серверу
 
 // ✅ Попытка освободить порт перед запуском
 try {
@@ -56,38 +55,8 @@ mongoose.connection.once("open", async () => {
   console.log("📂 Коллекции в базе данных:", collections.map(col => col.name));
 });
 
-// Настройка WebSocket с проверкой токена в заголовках
-wss.on("connection", (ws, req) => {
-  console.log("🔗 WebSocket-соединение запрашивается");
-
-  let authHeader = req.headers["sec-websocket-protocol"];
-
-  console.log("🔍 Все заголовки запроса:", req.headers);
-
-  if (!authHeader) {
-    ws.close();
-    return console.log("❌ Нет заголовка Sec-WebSocket-Protocol, соединение закрыто");
-  }
-
-  // Postman иногда передает несколько значений через запятую, берём последний
-  authHeader = authHeader.split(",").pop().trim();
-
-  if (!authHeader.startsWith("Bearer ")) {
-    ws.close();
-    return console.log("❌ Неверный формат токена, соединение закрыто");
-  }
-
-  const token = authHeader.replace("Bearer ", "").trim();
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    ws.user = decoded;
-    console.log("✅ Авторизованный пользователь подключился:", ws.user.userId);
-  } catch (error) {
-    ws.close();
-    return console.log("❌ Недействительный токен, соединение закрыто");
-  }
-});
+// 🛠 Подключаем WebSocket и сохраняем ссылку на него
+const wss = setupWebSocket(server);
 
 // Запуск сервера
 server.listen(PORT, () => {
@@ -101,7 +70,11 @@ const shutdown = () => {
   wss.clients.forEach((client) => {
     client.terminate(); // Принудительно закрываем соединение
   });
-  wss.close();
+
+  wss.close(() => {
+    console.log("🔴 WebSocket-сервер закрыт");
+  });
+
 
   if (server) {
     server.close(() => {
