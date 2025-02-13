@@ -29,11 +29,41 @@ router.post("/login", async (req, res) => {
       expiresIn: "7d",
     });
 
+    // 🔒 Отправляем токен в HTTP-only cookie
+    res.cookie("token", token, {
+      httpOnly: true,  // Защита от XSS
+      secure: process.env.NODE_ENV === "production", // Только HTTPS в проде
+      sameSite: "Strict", // Защита от CSRF
+      maxAge: 60 * 60 * 1000, // 1 час
+    });
+
     res.json({ token });
   } catch (error) {
     console.error("Ошибка авторизации:", error);
     res.status(500).json({ error: "Ошибка сервера" });
   }
 });
+
+router.get("/check", (req, res) => {
+  const token = req.cookies?.token; // ✅ Читаем токен из куков
+
+  if (!token) {
+    return res.json({ authenticated: false });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    res.json({ authenticated: true, userId: decoded.userId });
+  } catch (error) {
+    res.json({ authenticated: false });
+  }
+});
+
+// 🚀 Добавляем логаут (удаляем куку)
+router.post("/logout", (req, res) => {
+  res.clearCookie("token");
+  res.json({ success: true });
+});
+
 
 module.exports = router;

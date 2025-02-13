@@ -1,6 +1,7 @@
 const express = require("express");
 const http = require("http"); // Добавляем модуль http
 const cors = require("cors");
+const cookieParser = require("cookie-parser"); // 🔥 Добавляем cookie-parser
 require("dotenv").config();
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth");
@@ -29,8 +30,9 @@ try {
 connectDB();
 
 // Middleware
-app.use(cors());
+app.use(cors({ origin: "http://localhost:5173", credentials: true })); // Разрешаем куки
 app.use(express.json());
+app.use(cookieParser()); // 🔥 Добавляем поддержку куков
 
 // Подключаем маршруты пользователей
 app.use("/api/auth", authRoutes);
