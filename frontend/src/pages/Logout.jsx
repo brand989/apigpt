@@ -2,7 +2,7 @@ import React from "react";
 import { useWebSocket } from "../WebSocketProvider";
 
 const Logout = ({ setAuthenticated }) => {
-  const { disconnect } = useWebSocket(); // ✅ Отключаем WebSocket при выходе
+  const { disconnect } = useWebSocket(); // ✅ Теперь не будет ошибки
 
   const handleLogout = async () => {
     await fetch("http://localhost:3000/api/auth/logout", {
@@ -10,7 +10,7 @@ const Logout = ({ setAuthenticated }) => {
       credentials: "include",
     });
 
-    disconnect(); // ✅ Принудительно разрываем WebSocket
+    disconnect(); // ✅ Закрываем WebSocket
     setAuthenticated(false);
   };
 

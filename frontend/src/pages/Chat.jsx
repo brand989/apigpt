@@ -1,18 +1,18 @@
 import React, { useState } from "react";
-import { useWebSocket } from "../WebSocketProvider";
+import { useWebSocket } from "../WebSocketProvider"; // ✅ Правильный путь
 
 const Chat = () => {
-  const { messages = [], sendMessage, getMessages } = useWebSocket(); // ✅ Всегда массив
+  const { messages = [], sendMessage } = useWebSocket(); // ✅ Теперь sendMessage не undefined
   const [recipient, setRecipient] = useState("");
   const [text, setText] = useState("");
 
   const handleSendMessage = () => {
     if (recipient && text.trim()) {
-      sendMessage(recipient, text);
-      setText(""); // Очищаем поле после отправки
+      sendMessage(recipient, text); // ✅ Отправляем сообщение через WebSocket
+      setText("");
     }
   };
-
+  console.log("🔄 Chat компонент обновился, сообщений:", messages.length);
   return (
     <div>
       <h2>Чат</h2>
@@ -25,10 +25,10 @@ const Chat = () => {
           value={recipient}
           onChange={(e) => setRecipient(e.target.value)}
         />
-        <button onClick={() => getMessages(recipient)}>Загрузить сообщения</button>
+        <button onClick={() => sendMessage(recipient, text)}>Отправить сообщение</button>
       </div>
 
-      {/* Блок сообщений */}
+      {/* Список сообщений */}
       <div style={{ border: "1px solid black", padding: "10px", margin: "10px 0", maxHeight: "300px", overflowY: "auto" }}>
         {messages.length === 0 ? (
           <p>Сообщений пока нет</p>
@@ -41,7 +41,7 @@ const Chat = () => {
         )}
       </div>
 
-      {/* Ввод нового сообщения */}
+      {/* Поле ввода сообщения */}
       <input
         type="text"
         placeholder="Введите сообщение"

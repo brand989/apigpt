@@ -8,6 +8,7 @@ const setupWebSocket = (server) => {
   wss.on("connection", (ws, req) => {
     console.log("🔗 WebSocket-соединение запрашивается");
 
+    // ✅ Проверяем заголовок
     let authHeader = req.headers["sec-websocket-protocol"];
     if (!authHeader) {
       ws.close();
@@ -15,16 +16,16 @@ const setupWebSocket = (server) => {
     }
 
     authHeader = authHeader.split(",").pop().trim();
-    const token = authHeader.replace("Bearer_", "").trim();
 
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      ws.user = decoded;
-      console.log("✅ Авторизованный пользователь подключился:", ws.user.userId);
-    } catch (error) {
+    // ✅ Проверяем, что передан userId вместо JWT
+    if (!authHeader.startsWith("User_")) {
       ws.close();
-      return console.log("❌ Недействительный токен, соединение закрыто");
+      return console.log("❌ Неверный формат заголовка, соединение закрыто");
     }
+
+    const userId = authHeader.replace("User_", "").trim();
+    ws.userId = userId;
+    console.log("✅ WebSocket подключен, userId:", userId);
 
     // 📩 Обрабатываем входящие сообщения и команды
     ws.on("message", async (message) => {
@@ -42,8 +43,8 @@ const setupWebSocket = (server) => {
 
           const messages = await Message.find({
             $or: [
-              { sender: String(ws.user.userId), recipient: String(userId) },
-              { sender: String(userId), recipient: String(ws.user.userId) },
+              { sender: String(ws.userId), recipient: String(userId) },
+              { sender: String(userId), recipient: String(ws.userId) },
             ],
           }).sort({ createdAt: 1 });
 
@@ -63,7 +64,7 @@ const setupWebSocket = (server) => {
           }
 
           const newMessage = new Message({
-            sender: ws.user.userId,
+            sender: ws.userId,
             recipient,
             text,
           });

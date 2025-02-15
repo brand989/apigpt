@@ -30,7 +30,13 @@ try {
 connectDB();
 
 // Middleware
-app.use(cors({ origin: "http://localhost:5173", credentials: true })); // Разрешаем куки
+app.use(
+  cors({
+    origin: "http://localhost:5173", // ✅ Разрешаем только свой фронтенд
+    credentials: true, // ✅ Разрешаем куки
+  })
+);
+
 app.use(express.json());
 app.use(cookieParser()); // 🔥 Добавляем поддержку куков
 
