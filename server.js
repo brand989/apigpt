@@ -2,12 +2,16 @@ const express = require("express");
 const http = require("http"); // Добавляем модуль http
 const cors = require("cors");
 const cookieParser = require("cookie-parser"); // 🔥 Добавляем cookie-parser
+const jwt = require("jsonwebtoken");
+const { execSync } = require("child_process");
 require("dotenv").config();
+
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth");
-const { execSync } = require("child_process");
-const jwt = require("jsonwebtoken");
+const chatRoutes = require("./routes/chat");
 const setupWebSocket = require("./websocket"); // Подключаем WebSocket
+
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -42,17 +46,22 @@ app.use(cookieParser()); // 🔥 Добавляем поддержку куко�
 
 // Подключаем маршруты пользователей
 app.use("/api/auth", authRoutes);
+app.use("/api/chat", chatRoutes);  
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/messages", require("./routes/messageRoutes"));
+
 
 // Простая проверка сервера
 app.get("/", (req, res) => {
   res.send("API работает!");
 });
 
+
 app.get("/api/status", (req, res) => {
   res.json({ message: "Сервер работает! 🚀" });
 });
+
+
 
 const mongoose = require("mongoose");
 
@@ -63,6 +72,12 @@ mongoose.connection.once("open", async () => {
   console.log("📂 Коллекции в базе данных:", collections.map(col => col.name));
 });
 
+mongoose.connection.on("error", (error) => {
+  console.error("❌ Ошибка подключения к MongoDB:", error.message);
+});
+
+
+
 // 🛠 Подключаем WebSocket и сохраняем ссылку на него
 const wss = setupWebSocket(server);
 
@@ -70,6 +85,8 @@ const wss = setupWebSocket(server);
 server.listen(PORT, () => {
   console.log(`Сервер запущен на порту ${PORT}`);
 });
+
+
 
 // Обработчик закрытия сервера
 const shutdown = () => {
