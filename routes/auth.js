@@ -9,11 +9,12 @@ const router = express.Router();
 
 // Авторизация пользователя
 router.post("/login", async (req, res) => {
-  const { username, password } = req.body;
-  
-  console.log("🔍 Логин: ", username, "Пароль: ", password);
+ 
 
   try {
+    const { username, password } = req.body;
+    console.log("🔍 Логин: ", username, "Пароль: ", password);
+
     // Ищем пользователя в базе
     const user = await User.findOne({ username });
     if (!user) {
@@ -46,6 +47,8 @@ router.post("/login", async (req, res) => {
   }
 });
 
+
+
 router.get("/check", (req, res) => {
   const token = req.cookies?.token; // ✅ Читаем токен из куков
 
@@ -60,6 +63,7 @@ router.get("/check", (req, res) => {
     res.json({ authenticated: false });
   }
 });
+
 
 // 🚀 Добавляем логаут (удаляем куку)
 router.post("/logout", (req, res) => {

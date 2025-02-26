@@ -10,10 +10,11 @@ const setupWebSocket = (server) => {
 
     // ✅ Проверяем заголовок
     let authHeader = req.headers["sec-websocket-protocol"];
+
     if (!authHeader) {
-      ws.close();
-      return console.log("❌ Нет заголовка Sec-WebSocket-Protocol, соединение закрыто");
-    }
+        ws.close();
+        return console.log("❌ Нет заголовка Sec-WebSocket-Protocol, соединение закрыто");
+      }
 
     authHeader = authHeader.split(",").pop().trim();
 
