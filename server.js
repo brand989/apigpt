@@ -9,6 +9,7 @@ require("dotenv").config();
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth");
 const chatRoutes = require("./routes/chat");
+const messageRoutes = require("./routes/message");
 const setupWebSocket = require("./websocket"); // Подключаем WebSocket
 
 
@@ -48,7 +49,7 @@ app.use(cookieParser()); // 🔥 Добавляем поддержку куко�
 app.use("/api/auth", authRoutes);
 app.use("/api/chat", chatRoutes);  
 app.use("/api/users", require("./routes/userRoutes"));
-app.use("/api/messages", require("./routes/messageRoutes"));
+app.use("/api/message", messageRoutes);
 
 
 // Простая проверка сервера
