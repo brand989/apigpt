@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router} from "react-router-dom";
 import { WebSocketProvider } from "./WebSocketProvider";
 import Chat from "./pages/Chat";
 import Login from "./pages/Login";
 import Logout from "./pages/Logout";
+import ChatList from "./pages/ChatList";
 
 const App = () => {
   const [authenticated, setAuthenticated] = useState(false);
@@ -17,19 +19,25 @@ const App = () => {
   }, []);
 
   return (
-    <WebSocketProvider token={authenticated ? "token_in_cookie" : ""}>
-      <div>
-        <h1>Чат</h1>
-        {authenticated ? (
-          <>
-            <Chat />
-            <Logout setAuthenticated={setAuthenticated} /> {/* ✅ Кнопка выхода */}
-          </>
-        ) : (
-          <Login setAuthenticated={setAuthenticated} />
-        )}
-      </div>
-    </WebSocketProvider>
+    <Router> 
+      <WebSocketProvider token={authenticated ? "token_in_cookie" : ""}>
+        <div>
+          <h1>Чат</h1>
+          {authenticated ? (
+            
+            <>
+              <div style={{ width: "250px", marginRight: "20px" }}>
+                <ChatList /> {/* Отображаем список чатов */}
+              </div>
+              <Chat />
+              <Logout setAuthenticated={setAuthenticated} /> {/* ✅ Кнопка выхода */}
+            </>
+          ) : (
+            <Login setAuthenticated={setAuthenticated} />
+          )}
+        </div>
+      </WebSocketProvider>
+    </Router>
   );
 };
 

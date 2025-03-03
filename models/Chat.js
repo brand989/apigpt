@@ -9,6 +9,11 @@ const ChatSchema = new mongoose.Schema(
         required: true,
       },
     ],
+    name: {
+      type: String,
+      required: true,
+      default: "Без имени", // Название чата, если не передано, будет "Без имени"
+    },
   },
   { timestamps: true }
 );
