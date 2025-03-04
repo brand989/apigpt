@@ -3,9 +3,12 @@ import { useWebSocket } from "../WebSocketProvider"; // Правильный п�
 
 const Chat = ({ chatId }) => { // chatId теперь передается как пропс
   const { sendMessage } = useWebSocket();
-  const [messages, setMessages] = useState([]);
+  const { messages, setMessages } = useWebSocket();
 
-  const [recipient, setRecipient] = useState(""); // Для ID собеседника
+  const [msg, setMsg] = useState([]);
+
+
+
   const [text, setText] = useState(""); // Для текста нового сообщения
 
   // Загружаем сообщения для конкретного чата при монтировании компонента
@@ -20,7 +23,7 @@ const Chat = ({ chatId }) => { // chatId теперь передается ка�
         .then((res) => res.json())
         .then((data) => {
           console.log("Загружены сообщения:", data);
-          setMessages(data);
+          setMsg(data);         
         })
         .catch((err) => console.error("Ошибка при загрузке сообщений:", err));
     }
@@ -28,13 +31,27 @@ const Chat = ({ chatId }) => { // chatId теперь передается ка�
 
   // Обработчик отправки сообщения
   const handleSendMessage = () => {
-    if (recipient && text.trim()) {
-      sendMessage(chatId, recipient, text); // Отправляем сообщение в конкретный чат через WebSocket
+    if (text.trim()) {
+      sendMessage(chatId,  text); // Отправляем сообщение в конкретный чат через WebSocket
       setText("");  // Очищаем поле ввода после отправки
     }
   };
 
-  console.log("🔄 Chat компонент обновился, сообщений:", messages.length);
+
+  useEffect(() => {
+    // Если сообщения из WebSocket обновились, добавляем их в состояние msg
+  if (messages && messages.length > 0) {
+    messages.forEach((newMessage) => {
+      setMsg((prevMsg) => {
+        if (prevMsg.find((msg) => msg._id === newMessage._id)) {
+          return prevMsg; // Если сообщение уже есть, не добавляем его
+        }
+        return [...prevMsg, newMessage]; // Добавляем новое сообщение
+      });
+    });
+  }
+  }, [messages]); // Логируем изменения состояния
+
 
   return (
     <div>
@@ -50,18 +67,12 @@ const Chat = ({ chatId }) => { // chatId теперь передается ка�
           overflowY: "auto",
         }}
       >
-        {messages.length === 0 ? (
+        {msg.length === 0 ? (
           <p>Сообщений пока нет</p>
         ) : (
-          messages.map((msg, index) => (
+          msg.map((msg, index) => (
             <p key={index}>
-              <strong>
-                {msg.sender === recipient
-                  ? "Вы"
-                  : msg.sender === "ChatGPT" // Если отправитель — бот
-                  ? "Бот"
-                  : "Друг"}:
-              </strong>{" "}
+              <strong>{msg.sender === "ChatGPT" ? "Бот" : msg.sender}:</strong>{" "}
               {msg.text}
             </p>
           ))

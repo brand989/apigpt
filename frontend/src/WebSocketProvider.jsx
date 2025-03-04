@@ -6,6 +6,9 @@ export const WebSocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [messages, setMessages] = useState([]);
 
+  useEffect(() => {
+    console.log("🔄 Состояние сообщений обновлено 2:", messages);
+  }, [messages]); // Логируем изменения состояния
 
 
   useEffect(() => {
@@ -23,16 +26,30 @@ export const WebSocketProvider = ({ children }) => {
           ws.onopen = () => {
             console.log("✅ WebSocket подключен");
             setSocket(ws);
-            console.log("🟢 WebSocket после setSocket:", socket); // Должен быть `null`, потому что React не обновил состояние мгновенно.
+            console.log("🟢 WebSocket после setSocket:", ws);
           };
 
           ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            console.log("📩 Получено сообщение:", data);
 
             if (data.type === "new_message") {
-              setMessages((prev) => [...prev, data.data]);
+              console.log("📩 Новое сообщение:", data.data);
+            
+              // Добавляем новое сообщение в список, если оно не дублируется
+              setMessages((prevMessages) => {
+                // Проверяем, что сообщение не дублируется по _id
+                const messageExists = prevMessages.some((msg) => msg._id === data.data._id);
+                if (messageExists) {
+                  console.log("❌ Это сообщение уже есть в списке");
+                  return prevMessages; // Если сообщение уже есть, не добавляем его
+                }
+                
+                // Если нет, добавляем сообщение в список
+                console.log("Добавляем новое сообщение в список:", data.data);
+                return [...prevMessages, data.data];
+              });
             }
+
             if (data.type === "messages") {
               setMessages(data.data);
             }
@@ -62,17 +79,23 @@ export const WebSocketProvider = ({ children }) => {
 
 
   // ✅ Функция отправки сообщений
-  const sendMessage = (chatId, recipient, text) => {
-    console.log("📨 Попытка отправить сообщение...");
+  const sendMessage = (chatId, text) => {
+    console.log("📨 Попытка отправить сообщение...", socket);
     
-    if (!socket || socket.readyState !== WebSocket.OPEN) {
+    if (!socket) {
       console.error("⛔ WebSocket не подключен! Попробуйте позже.");
       return;
     }
   
-    socket.send(JSON.stringify({ type: "send_message", chatId, recipient, text }));
-    console.log("✅ Сообщение отправлено:", { recipient, chatId, text });
+    if (socket.readyState !== WebSocket.OPEN) {
+      console.error("⛔ WebSocket ещё не открыт! Попробуйте позже.");
+      return;
+    }
+    
+    socket.send(JSON.stringify({ type: "send_message", chatId, text }));
+    console.log("✅ Сообщение отправлено:", { chatId, text });
   };
+
 
   const disconnect = () => {
     if (socket) {
