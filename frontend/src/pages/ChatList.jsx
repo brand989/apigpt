@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom"; // Для навигации
 
-const ChatList = () => {
+const ChatList = ({ setChatId }) => {
   const [chats, setChats] = useState([]);
 
   // Загружаем чаты при монтировании компонента
@@ -12,25 +12,20 @@ const ChatList = () => {
       credentials: "include", // Используем куки для авторизации
     })
       .then((res) => res.json())
-      .then((data) => {
-        console.log('Чаты получены:', data); // Логируем чаты
-        setChats(data);
-      })
+      .then((data) => setChats(data))
       .catch((err) => console.error("Ошибка при загрузке чатов:", err));
   }, []);
 
   return (
     <div>
       <h2>Список чатов</h2>
-
-      {/* Список чатов */}
       <ul>
         {chats.length === 0 ? (
           <p>У вас нет чатов.</p>
         ) : (
           chats.map((chat) => (
             <li key={chat._id}>
-              <Link to={`/chat/${chat._id}`}>{chat.name}</Link>
+              <button onClick={() => setChatId(chat._id)}>{chat.name}</button>
             </li>
           ))
         )}

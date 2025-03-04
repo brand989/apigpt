@@ -8,6 +8,8 @@ import ChatList from "./pages/ChatList";
 
 const App = () => {
   const [authenticated, setAuthenticated] = useState(false);
+  const [chatId, setChatId] = useState(null); // Состояние для текущего chatId
+
 
   useEffect(() => {
     fetch("http://localhost:3000/api/auth/check", {
@@ -27,9 +29,11 @@ const App = () => {
             
             <>
               <div style={{ width: "250px", marginRight: "20px" }}>
-                <ChatList /> {/* Отображаем список чатов */}
+                <ChatList setChatId={setChatId}/> {/* Отображаем список чатов */}
               </div>
-              <Chat />
+              <div style={{ flexGrow: 1 }}>
+                {chatId && <Chat chatId={chatId} />}
+              </div>
               <Logout setAuthenticated={setAuthenticated} /> {/* ✅ Кнопка выхода */}
             </>
           ) : (

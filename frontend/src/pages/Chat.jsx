@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useWebSocket } from "../WebSocketProvider"; // Правильный путь к WebSocket контексту
 
 const Chat = ({ chatId }) => { // chatId теперь передается как пропс
-  const { messages = [], sendMessage } = useWebSocket(); // Получаем все сообщения и функцию отправки
+  const { sendMessage } = useWebSocket();
+  const [messages, setMessages] = useState([]);
+
   const [recipient, setRecipient] = useState(""); // Для ID собеседника
   const [text, setText] = useState(""); // Для текста нового сообщения
 
@@ -10,10 +12,15 @@ const Chat = ({ chatId }) => { // chatId теперь передается ка�
   useEffect(() => {
     if (chatId) {
       // Запросить сообщения для этого чата
-      fetch(`http://localhost:3000/api/messages?chatId=${chatId}`)
+      fetch(`http://localhost:3000/api/message/${chatId}`, {
+        method: "GET",
+        credentials: "include",
+      })
+
         .then((res) => res.json())
         .then((data) => {
           console.log("Загружены сообщения:", data);
+          setMessages(data);
         })
         .catch((err) => console.error("Ошибка при загрузке сообщений:", err));
     }
@@ -32,16 +39,6 @@ const Chat = ({ chatId }) => { // chatId теперь передается ка�
   return (
     <div>
       <h2>Чат: {chatId}</h2>
-
-      {/* Ввод ID собеседника */}
-      <div>
-        <input
-          type="text"
-          placeholder="ID собеседника"
-          value={recipient}
-          onChange={(e) => setRecipient(e.target.value)}
-        />
-      </div>
 
       {/* Список сообщений */}
       <div

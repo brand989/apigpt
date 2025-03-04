@@ -46,8 +46,11 @@ router.post("/", protect, async (req, res) => {
 
 // ✅ 2. Получение всех сообщений для конкретного чата
 router.get("/:chatId", protect, async (req, res) => {
+
   try {
     const { chatId } = req.params;
+
+    console.log(chatId)
 
     const messages = await Message.find({ chatId }) // Фильтруем по chatId
       .sort({ createdAt: 1 }); // Сортируем по дате

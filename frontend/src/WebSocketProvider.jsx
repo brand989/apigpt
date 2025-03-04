@@ -62,7 +62,7 @@ export const WebSocketProvider = ({ children }) => {
 
 
   // ✅ Функция отправки сообщений
-  const sendMessage = (recipient, text) => {
+  const sendMessage = (chatId, recipient, text) => {
     console.log("📨 Попытка отправить сообщение...");
     
     if (!socket || socket.readyState !== WebSocket.OPEN) {
@@ -70,8 +70,8 @@ export const WebSocketProvider = ({ children }) => {
       return;
     }
   
-    socket.send(JSON.stringify({ type: "send_message", recipient, text }));
-    console.log("✅ Сообщение отправлено:", { recipient, text });
+    socket.send(JSON.stringify({ type: "send_message", chatId, recipient, text }));
+    console.log("✅ Сообщение отправлено:", { recipient, chatId, text });
   };
 
   const disconnect = () => {
