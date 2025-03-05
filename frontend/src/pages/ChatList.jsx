@@ -9,6 +9,13 @@ const ChatList = ({ chats }) => {
 
   return (
     <div>
+        <button
+        onClick={() => {
+          navigate("/"); // Редирект на главную страницу
+        }}
+        >
+        Добавить чат
+      </button>
       <h2>Список чатов</h2>
       <ul>
         {chats.length === 0 ? (
@@ -23,14 +30,7 @@ const ChatList = ({ chats }) => {
       </ul>
 
       
-      <button
-        onClick={() => {
-          console.log("Функционал добавления чата будет позже");
-          navigate("/"); // Редирект на главную страницу
-        }}
-      >
-        Добавить чат
-      </button>
+      
     </div>
   );
 };

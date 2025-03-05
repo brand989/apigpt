@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import Logout from "./pages/Logout";
 import ChatList from "./pages/ChatList";
 import CreateChatPage from "./pages/CreateChatPage";
+import "./App.css";
 
 const App = () => {
   const [authenticated, setAuthenticated] = useState(false);
@@ -42,18 +43,20 @@ const addChat = (newChat) => {
   return (
     <BrowserRouter> 
       <WebSocketProvider token={authenticated ? "token_in_cookie" : ""}>
-        <div>
-          <h1>Чат</h1>
+        <div className="app-container">
+          <h1 className="logo">Ваш Бот</h1>
           {authenticated ? (
             <>
-              <div style={{ width: "250px", marginRight: "20px" }}>
-                <ChatList chats={chats}/> {/* Отображаем список чатов */}
-              </div>
-              <div style={{ flexGrow: 1 }}>
-                {<Routes>
-                  <Route path="/chat/:chatId" element={<Chat />} /> {/* Новый способ рендеринга компонента */}
-                  <Route path="/" element={<CreateChatPage addChat={addChat}/>} />
-                </Routes>}
+              <div className="chat-container">
+                <div className="chat-list">
+                  <ChatList chats={chats}/> 
+                </div>
+                <div className="main-content">
+                  {<Routes>
+                    <Route path="/chat/:chatId" element={<Chat />} /> {/* Новый способ рендеринга компонента */}
+                    <Route path="/" element={<CreateChatPage addChat={addChat}/>} />
+                  </Routes>}
+                </div>
               </div>
               <Logout setAuthenticated={setAuthenticated} /> {/* ✅ Кнопка выхода */}
             </>

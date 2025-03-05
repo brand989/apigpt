@@ -57,7 +57,7 @@ const CreateChatPage = ({ addChat }) => {
 
   return (
     <div>
-      <h1>Создать новый чат</h1>
+      <h1>Чем могу помочь?</h1>
       <input
         type="text"
         value={message}
