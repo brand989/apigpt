@@ -10,7 +10,12 @@ import CreateChatPage from "./pages/CreateChatPage";
 const App = () => {
   const [authenticated, setAuthenticated] = useState(false);
   const [chatId, setChatId] = useState(null); // Состояние для текущего chatId
+  const [chats, setChats] = useState([]);
 
+// Функция для добавления нового чата
+const addChat = (newChat) => {
+  setChats((prevChats) => [...prevChats, newChat]); // Добавляем новый чат в список
+};
 
   useEffect(() => {
     fetch("http://localhost:3000/api/auth/check", {
@@ -21,28 +26,36 @@ const App = () => {
       .catch(() => setAuthenticated(false));
   }, []);
 
+  // Загружаем чаты при монтировании компонента через API
+  useEffect(() => {
+    fetch("http://localhost:3000/api/chat", {
+      method: "GET",
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => setChats(data))
+      .catch((err) => console.error("Ошибка при загрузке чатов:", err));
+  }, []);
+
+
+
   return (
     <BrowserRouter> 
       <WebSocketProvider token={authenticated ? "token_in_cookie" : ""}>
         <div>
           <h1>Чат</h1>
           {authenticated ? (
-            
             <>
               <div style={{ width: "250px", marginRight: "20px" }}>
-                <ChatList setChatId={setChatId}/> {/* Отображаем список чатов */}
+                <ChatList chats={chats}/> {/* Отображаем список чатов */}
               </div>
               <div style={{ flexGrow: 1 }}>
                 {<Routes>
                   <Route path="/chat/:chatId" element={<Chat />} /> {/* Новый способ рендеринга компонента */}
+                  <Route path="/" element={<CreateChatPage addChat={addChat}/>} />
                 </Routes>}
               </div>
               <Logout setAuthenticated={setAuthenticated} /> {/* ✅ Кнопка выхода */}
-              {!chatId && (
-                <div>
-                  <CreateChatPage />
-                </div>
-              )}
             </>
           ) : (
             <Login setAuthenticated={setAuthenticated} />

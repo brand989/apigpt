@@ -3,10 +3,12 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useWebSocket } from '../WebSocketProvider'; 
 
-const CreateChatPage = () => {
+const CreateChatPage = ({ addChat }) => {
   const [message, setMessage] = useState("");
   const { userId } = useWebSocket();
   const navigate = useNavigate();
+ 
+
 
 
   const handleMessageChange = (e) => {
@@ -38,10 +40,14 @@ const CreateChatPage = () => {
             withCredentials: true,  // Передаем куки с запросом
           });
 
-          console.log(`/chat/${newChat._id}`)
+       
+          
+        // Обновляем родительский компонент с новым chatId
+      
+        addChat(newChat);
+        // Переходим к этому чату
+        navigate(`/chat/${newChat._id}`);
 
-       // Переходим к этому чату
-       navigate(`/chat/${newChat._id}`);
 
       } catch (error) {
         console.error("Ошибка при создании чата:", error);

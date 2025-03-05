@@ -6,6 +6,7 @@ export const WebSocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [messages, setMessages] = useState([]);
   const [userId, setUserId] = useState(null); 
+  const [chats, setChats] = useState([]);
 
   useEffect(() => {
     console.log("🔄 Состояние сообщений обновлено 2:", messages);
@@ -34,6 +35,7 @@ export const WebSocketProvider = ({ children }) => {
           ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
 
+           
             if (data.type === "new_message") {
               console.log("📩 Новое сообщение:", data.data);
             
@@ -109,7 +111,7 @@ export const WebSocketProvider = ({ children }) => {
 
 
   return (
-    <WebSocketContext.Provider value={{ messages, sendMessage, userId, disconnect }}>
+    <WebSocketContext.Provider value={{ socket, messages, sendMessage, userId , chats, disconnect }}>
       {children}
     </WebSocketContext.Provider>
   );
