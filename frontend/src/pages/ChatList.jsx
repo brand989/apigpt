@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom"; // Для навигации
+import { Link, useNavigate } from "react-router-dom"; // Для навигации
 
 const ChatList = ({ setChatId }) => {
   const [chats, setChats] = useState([]);
+  const navigate = useNavigate();
 
   // Загружаем чаты при монтировании компонента
   useEffect(() => {
@@ -25,8 +26,10 @@ const ChatList = ({ setChatId }) => {
         ) : (
           chats.map((chat) => (
             <li key={chat._id}>
-              <button onClick={() => setChatId(chat._id)}>{chat.name}</button>
-            </li>
+            <Link to={`/chat/${chat._id}`} onClick={() => setChatId(chat._id)}>
+              {chat.name}
+            </Link>
+          </li>
           ))
         )}
       </ul>
@@ -34,8 +37,8 @@ const ChatList = ({ setChatId }) => {
       {/* Кнопка для добавления нового чата (функционал добавления пока пустой) */}
       <button
         onClick={() => {
-          // Здесь будет функционал для добавления чата
           console.log("Функционал добавления чата будет позже");
+          navigate("/"); // Редирект на главную страницу
         }}
       >
         Добавить чат

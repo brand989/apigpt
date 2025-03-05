@@ -5,6 +5,7 @@ const WebSocketContext = createContext(null);
 export const WebSocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [messages, setMessages] = useState([]);
+  const [userId, setUserId] = useState(null); 
 
   useEffect(() => {
     console.log("🔄 Состояние сообщений обновлено 2:", messages);
@@ -20,6 +21,7 @@ export const WebSocketProvider = ({ children }) => {
         if (data.authenticated) {
           const userId = data.userId;
           console.log("📡 Подключаем WebSocket с userId:", userId);
+          setUserId(userId); 
 
           const ws = new WebSocket("ws://localhost:3000", ["User_" + userId]);
 
@@ -107,7 +109,7 @@ export const WebSocketProvider = ({ children }) => {
 
 
   return (
-    <WebSocketContext.Provider value={{ messages, sendMessage, disconnect }}>
+    <WebSocketContext.Provider value={{ messages, sendMessage, userId, disconnect }}>
       {children}
     </WebSocketContext.Provider>
   );

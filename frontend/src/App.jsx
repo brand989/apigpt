@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router} from "react-router-dom";
+import { BrowserRouter , Routes,  Route } from "react-router-dom";
 import { WebSocketProvider } from "./WebSocketProvider";
 import Chat from "./pages/Chat";
 import Login from "./pages/Login";
 import Logout from "./pages/Logout";
 import ChatList from "./pages/ChatList";
+import CreateChatPage from "./pages/CreateChatPage";
 
 const App = () => {
   const [authenticated, setAuthenticated] = useState(false);
@@ -21,7 +22,7 @@ const App = () => {
   }, []);
 
   return (
-    <Router> 
+    <BrowserRouter> 
       <WebSocketProvider token={authenticated ? "token_in_cookie" : ""}>
         <div>
           <h1>Чат</h1>
@@ -32,16 +33,23 @@ const App = () => {
                 <ChatList setChatId={setChatId}/> {/* Отображаем список чатов */}
               </div>
               <div style={{ flexGrow: 1 }}>
-                {chatId && <Chat chatId={chatId} />}
+                {<Routes>
+                  <Route path="/chat/:chatId" element={<Chat />} /> {/* Новый способ рендеринга компонента */}
+                </Routes>}
               </div>
               <Logout setAuthenticated={setAuthenticated} /> {/* ✅ Кнопка выхода */}
+              {!chatId && (
+                <div>
+                  <CreateChatPage />
+                </div>
+              )}
             </>
           ) : (
             <Login setAuthenticated={setAuthenticated} />
           )}
         </div>
       </WebSocketProvider>
-    </Router>
+      </BrowserRouter>
   );
 };
 

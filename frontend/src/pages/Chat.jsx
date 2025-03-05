@@ -1,33 +1,41 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useParams } from "react-router-dom"; 
+
 import { useWebSocket } from "../WebSocketProvider"; // Правильный путь к WebSocket контексту
 
-const Chat = ({ chatId }) => { // chatId теперь передается как пропс
+const Chat = () => { // chatId теперь передается как пропс
+  const { chatId } = useParams();
   const { sendMessage } = useWebSocket();
   const { messages, setMessages } = useWebSocket();
 
   const [msg, setMsg] = useState([]);
 
+  useEffect(() => {
+    console.log("Сообщения загружены:", msg);
+  }, [msg]); // Логируем изменения состояния msg
 
+  console.log("Полученный chatId:", chatId);
 
   const [text, setText] = useState(""); // Для текста нового сообщения
 
   // Загружаем сообщения для конкретного чата при монтировании компонента
   useEffect(() => {
-    if (chatId) {
-      // Запросить сообщения для этого чата
-      fetch(`http://localhost:3000/api/message/${chatId}`, {
-        method: "GET",
-        credentials: "include",
-      })
+    console.log("chatId изменился. Загружаем сообщения...");
+    // Загружаем сообщения, связанные с текущим чатом
+    const fetchMessages = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/message/${chatId}`, {
+          withCredentials: true,
+        });
+        setMsg(response.data);  // Обновляем состояние сообщениями
+      } catch (error) {
+        console.error("Ошибка при загрузке сообщений:", error);
+      }
+    };
 
-        .then((res) => res.json())
-        .then((data) => {
-          console.log("Загружены сообщения:", data);
-          setMsg(data);         
-        })
-        .catch((err) => console.error("Ошибка при загрузке сообщений:", err));
-    }
-  }, [chatId]);
+    fetchMessages();
+  }, [chatId]); 
 
   // Обработчик отправки сообщения
   const handleSendMessage = () => {

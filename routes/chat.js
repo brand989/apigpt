@@ -16,11 +16,11 @@ router.get("/", protect, async (req, res) => {
 
 // Создание чата
 router.post("/create", async (req, res) => {
-  const { userIds, name } = req.body;
+  const { users, name } = req.body;
 
   try {
     const newChat = new Chat({
-      users: userIds,
+      users: users,
       name: name || "Без имени", // Если имя не передано, используется дефолтное "Без имени"
     });
 
