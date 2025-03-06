@@ -1,34 +1,25 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom"; 
+import { useWebSocket } from "../WebSocketProvider"; 
 
-import { useWebSocket } from "../WebSocketProvider"; // Правильный путь к WebSocket контексту
-
-const Chat = () => { // chatId теперь передается как пропс
+const Chat = () => { 
   const { chatId } = useParams();
   const { sendMessage } = useWebSocket();
   const { messages, setMessages } = useWebSocket();
-
   const [msg, setMsg] = useState([]);
-
-  useEffect(() => {
-    console.log("Сообщения загружены:", msg);
-  }, [msg]); // Логируем изменения состояния msg
-
-  console.log("Полученный chatId:", chatId);
-
-  const [text, setText] = useState(""); // Для текста нового сообщения
+  const [text, setText] = useState(""); 
 
   // Загружаем сообщения для конкретного чата при монтировании компонента
   useEffect(() => {
-    console.log("chatId изменился. Загружаем сообщения...");
+
     // Загружаем сообщения, связанные с текущим чатом
     const fetchMessages = async () => {
       try {
         const response = await axios.get(`http://localhost:3000/api/message/${chatId}`, {
           withCredentials: true,
         });
-        setMsg(response.data);  // Обновляем состояние сообщениями
+        setMsg(response.data);  
       } catch (error) {
         console.error("Ошибка при загрузке сообщений:", error);
       }
@@ -87,7 +78,6 @@ const Chat = () => { // chatId теперь передается как проп
         )}
       </div>
 
-      {/* Поле ввода сообщения */}
       <input
         type="text"
         placeholder="Введите сообщение"

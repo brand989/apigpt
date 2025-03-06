@@ -7,9 +7,6 @@ const CreateChatPage = ({ addChat }) => {
   const [message, setMessage] = useState("");
   const { userId } = useWebSocket();
   const navigate = useNavigate();
- 
-
-
 
   const handleMessageChange = (e) => {
     setMessage(e.target.value);
@@ -20,31 +17,27 @@ const CreateChatPage = ({ addChat }) => {
       const chatName = message.split(" ").slice(0, 3).join(" "); // Название чата из первых трех слов сообщения
 
       try {
-        // Создаем новый чат
+        console.log(chatName,[userId])
         const response = await axios.post("http://localhost:3000/api/chat/create", {
           name: chatName,
           users: [userId],
         }, {
-            withCredentials: true,  // Передаем куки с запросом
+            withCredentials: true,  
           });
 
-
         const newChat = response.data;
-        console.log("Создан чат:", newChat);
 
         // Создаем первое сообщение в чате
         await axios.post("http://localhost:3000/api/message", {
           chatId: newChat._id,
           text: message,
         }, {
-            withCredentials: true,  // Передаем куки с запросом
+            withCredentials: true,  
           });
 
-       
-          
         // Обновляем родительский компонент с новым chatId
-      
         addChat(newChat);
+
         // Переходим к этому чату
         navigate(`/chat/${newChat._id}`);
 

@@ -10,13 +10,12 @@ import "./App.css";
 
 const App = () => {
   const [authenticated, setAuthenticated] = useState(false);
-  const [chatId, setChatId] = useState(null); // Состояние для текущего chatId
   const [chats, setChats] = useState([]);
 
-// Функция для добавления нового чата
-const addChat = (newChat) => {
-  setChats((prevChats) => [...prevChats, newChat]); // Добавляем новый чат в список
-};
+  // Функция для добавления нового чата
+  const addChat = (newChat) => {
+    setChats((prevChats) => [...prevChats, newChat]); // Добавляем новый чат в список
+  };
 
   useEffect(() => {
     fetch("http://localhost:3000/api/auth/check", {
@@ -29,20 +28,22 @@ const addChat = (newChat) => {
 
   // Загружаем чаты при монтировании компонента через API
   useEffect(() => {
-    fetch("http://localhost:3000/api/chat", {
-      method: "GET",
-      credentials: "include",
-    })
-      .then((res) => res.json())
-      .then((data) => setChats(data))
-      .catch((err) => console.error("Ошибка при загрузке чатов:", err));
-  }, []);
+    if(authenticated) {
+      fetch("http://localhost:3000/api/chat", {
+        method: "GET",
+        credentials: "include",
+      })
+        .then((res) => res.json())
+        .then((data) => setChats(data))
+        .catch((err) => console.error("Ошибка при загрузке чатов:", err));
+    }
+  }, [authenticated]);
 
 
 
   return (
     <BrowserRouter> 
-      <WebSocketProvider token={authenticated ? "token_in_cookie" : ""}>
+      <WebSocketProvider authenticated={authenticated}>
         <div className="app-container">
           <h1 className="logo">Ваш Бот</h1>
           {authenticated ? (
@@ -53,12 +54,12 @@ const addChat = (newChat) => {
                 </div>
                 <div className="main-content">
                   {<Routes>
-                    <Route path="/chat/:chatId" element={<Chat />} /> {/* Новый способ рендеринга компонента */}
+                    <Route path="/chat/:chatId" element={<Chat />} /> 
                     <Route path="/" element={<CreateChatPage addChat={addChat}/>} />
                   </Routes>}
                 </div>
               </div>
-              <Logout setAuthenticated={setAuthenticated} /> {/* ✅ Кнопка выхода */}
+              <Logout setAuthenticated={setAuthenticated} /> 
             </>
           ) : (
             <Login setAuthenticated={setAuthenticated} />

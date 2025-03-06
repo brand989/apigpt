@@ -2,15 +2,11 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 const WebSocketContext = createContext(null);
 
-export const WebSocketProvider = ({ children }) => {
+export const WebSocketProvider = ({ children, authenticated }) => {
   const [socket, setSocket] = useState(null);
   const [messages, setMessages] = useState([]);
   const [userId, setUserId] = useState(null); 
   const [chats, setChats] = useState([]);
-
-  useEffect(() => {
-    console.log("🔄 Состояние сообщений обновлено 2:", messages);
-  }, [messages]); // Логируем изменения состояния
 
 
   useEffect(() => {
@@ -21,7 +17,6 @@ export const WebSocketProvider = ({ children }) => {
       .then((data) => {
         if (data.authenticated) {
           const userId = data.userId;
-          console.log("📡 Подключаем WebSocket с userId:", userId);
           setUserId(userId); 
 
           const ws = new WebSocket("ws://localhost:3000", ["User_" + userId]);
@@ -29,16 +24,13 @@ export const WebSocketProvider = ({ children }) => {
           ws.onopen = () => {
             console.log("✅ WebSocket подключен");
             setSocket(ws);
-            console.log("🟢 WebSocket после setSocket:", ws);
           };
 
           ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
 
-           
             if (data.type === "new_message") {
-              console.log("📩 Новое сообщение:", data.data);
-            
+              
               // Добавляем новое сообщение в список, если оно не дублируется
               setMessages((prevMessages) => {
                 // Проверяем, что сообщение не дублируется по _id
@@ -47,9 +39,8 @@ export const WebSocketProvider = ({ children }) => {
                   console.log("❌ Это сообщение уже есть в списке");
                   return prevMessages; // Если сообщение уже есть, не добавляем его
                 }
-                
+          
                 // Если нет, добавляем сообщение в список
-                console.log("Добавляем новое сообщение в список:", data.data);
                 return [...prevMessages, data.data];
               });
             }
@@ -64,8 +55,6 @@ export const WebSocketProvider = ({ children }) => {
 
           setSocket(ws);
 
-          console.log("после сетсокет", socket);
-
           return () => {
             ws.close();
             setSocket(null);
@@ -73,7 +62,7 @@ export const WebSocketProvider = ({ children }) => {
         }
       })
       .catch((err) => console.error("❌ Ошибка при получении userId", err));
-  }, []);
+  }, [authenticated]);
 
   useEffect(() => {
     if (socket) {
