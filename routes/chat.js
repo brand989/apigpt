@@ -31,4 +31,20 @@ router.post("/create", async (req, res) => {
   }
 });
 
+router.get("/:chatId", async (req, res) => {
+  try {
+    const chat = await Chat.findById(req.params.chatId).populate("users", "username");
+
+    if (!chat) {
+      return res.status(404).json({ error: "Чат не найден" });
+    }
+
+    res.json(chat);
+  } catch (error) {
+    console.error("Ошибка при загрузке чата:", error);
+    res.status(500).json({ error: "Ошибка сервера" });
+  }
+});
+
+
 module.exports = router;

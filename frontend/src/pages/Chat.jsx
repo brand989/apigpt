@@ -9,6 +9,43 @@ const Chat = () => {
   const { messages, setMessages } = useWebSocket();
   const [msg, setMsg] = useState([]);
   const [text, setText] = useState(""); 
+  const [chatName, setChatName] = useState("Загрузка...");
+  const [users, setUsers] = useState({});
+  const [currentUserId, setCurrentUserId] = useState(null);
+
+  // Загружаем название чата и пользователей
+  useEffect(() => {
+    const fetchChatInfo = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/chat/${chatId}`, {
+          withCredentials: true,
+        });
+        setChatName(response.data.name || "Без названия"); 
+
+
+        // Создаём объект { userId: username }
+        const userMap = {};
+        response.data.users.forEach(user => {
+          userMap[user._id] = user.username;
+        });
+        setUsers(userMap);
+
+        // Получаем текущего пользователя
+        const userResponse = await axios.get("http://localhost:3000/api/auth/check", {
+          withCredentials: true,
+        });
+        setCurrentUserId(userResponse.data.userId);
+
+
+      } catch (error) {
+        console.error("Ошибка при загрузке чата:", error);
+        setChatName("Чат не найден");
+      }
+    };
+
+    fetchChatInfo();
+  }, [chatId]);
+
 
   // Загружаем сообщения для конкретного чата при монтировании компонента
   useEffect(() => {
@@ -26,6 +63,7 @@ const Chat = () => {
     };
 
     fetchMessages();
+
   }, [chatId]); 
 
   // Обработчик отправки сообщения
@@ -54,22 +92,35 @@ const Chat = () => {
 
   return (
     <div className="chat-container">
-      <h2 className="chat-title">Чат: {chatId}</h2>
+      <h2 className="chat-title">{chatName}</h2>
 
       {/* Список сообщений */}
       <div className="chat-messages">
         {msg.length === 0 ? (
           <p className="chat-no-messages">Сообщений пока нет</p>
         ) : (
-          msg.map((msg, index) => (
-            <p key={index} className="chat-message">
-              <strong className="chat-message-sender">{msg.sender === "ChatGPT" ? "Бот" : msg.sender}:</strong>{" "}
-              {msg.text}
-            </p>
-          ))
+          msg.map((msg, index) => {
+            const isUserMessage = msg.sender === currentUserId; // 👈 Проверяем, кто отправил сообщение
+
+            return (
+              <div
+                key={index}
+                className={`chat-message ${
+                  isUserMessage ? "chat-message-user" : "chat-message-other"
+                }`}
+              >
+                {!isUserMessage && (
+                  <span className="chat-message-sender">{users[msg.sender] || "БОТ"}</span>
+                )}
+                {msg.text}
+              </div>
+            );
+          })
         )}
       </div>
-        <div className="chat-input"> 
+
+      {/* Поле ввода */}
+      <div className="chat-input">
         <input
           type="text"
           className="chat-input-field"
@@ -77,10 +128,14 @@ const Chat = () => {
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
-        <button className="chat-send-button" onClick={handleSendMessage}>Отправить</button>
-        </div> 
+        <button className="chat-send-button" onClick={handleSendMessage}>
+          Отправить
+        </button>
+      </div>
     </div>
   );
+
+
 };
 
 export default Chat;
