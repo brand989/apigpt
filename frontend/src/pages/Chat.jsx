@@ -53,38 +53,32 @@ const Chat = () => {
 
 
   return (
-    <div>
-      <h2>Чат: {chatId}</h2>
+    <div className="chat-container">
+      <h2 className="chat-title">Чат: {chatId}</h2>
 
       {/* Список сообщений */}
-      <div
-        style={{
-          border: "1px solid black",
-          padding: "10px",
-          margin: "10px 0",
-          maxHeight: "300px",
-          overflowY: "auto",
-        }}
-      >
+      <div className="chat-messages">
         {msg.length === 0 ? (
-          <p>Сообщений пока нет</p>
+          <p className="chat-no-messages">Сообщений пока нет</p>
         ) : (
           msg.map((msg, index) => (
-            <p key={index}>
-              <strong>{msg.sender === "ChatGPT" ? "Бот" : msg.sender}:</strong>{" "}
+            <p key={index} className="chat-message">
+              <strong className="chat-message-sender">{msg.sender === "ChatGPT" ? "Бот" : msg.sender}:</strong>{" "}
               {msg.text}
             </p>
           ))
         )}
       </div>
-
-      <input
-        type="text"
-        placeholder="Введите сообщение"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-      />
-      <button onClick={handleSendMessage}>Отправить</button>
+        <div className="chat-input"> 
+        <input
+          type="text"
+          className="chat-input-field"
+          placeholder="Введите сообщение"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+        />
+        <button className="chat-send-button" onClick={handleSendMessage}>Отправить</button>
+        </div> 
     </div>
   );
 };

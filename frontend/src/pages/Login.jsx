@@ -29,23 +29,26 @@ const Login = ({ setAuthenticated }) => {
   };
 
   return (
-    <div>
-      <h2>Авторизация</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <input
-        type="text"
-        placeholder="Логин"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Пароль"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button onClick={handleLogin}>Войти</button>
-    </div>
+    <div className="login-container">
+    <h2 className="login-title">Авторизация</h2>
+    {error && <p className="login-error">{error}</p>}
+    
+    <input
+      type="text"
+      className="login-input"
+      placeholder="Логин"
+      value={username}
+      onChange={(e) => setUsername(e.target.value)}
+    />
+    <input
+      type="password"
+      className="login-input"
+      placeholder="Пароль"
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+    />
+    <button className="login-button" onClick={handleLogin}>Войти</button>
+  </div>
   );
 };
 

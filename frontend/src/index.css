@@ -24,8 +24,6 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
 }
@@ -65,4 +63,369 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+
+/* Контейнер всего приложения */
+.app-container {
+  width: 100%;
+  display: flex;
+  height: 100vh; /* Растягиваем на весь экран */
+  background-color: #f4f4f8;
+  overflow: hidden; /* Чтобы не было лишних прокруток */
+}
+
+/* Основная раскладка чата */
+.chat-layout {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+/* Левый блок с чатами (фиксированная ширина) */
+.chat-sidebar {
+  position: relative;
+  flex: 0 0 300px; /* Фиксированная ширина */
+  max-width: 300px; 
+  min-width: 300px;
+  height: 100vh; /* На всю высоту */
+  background: #ffffff;
+  border-right: 1px solid #ddd;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto; /* Вертикальный скролл при необходимости */
+  overflow-x: hidden; /* ✅ Убираем горизонтальный скролл */
+}
+
+/* Основной блок чата */
+.chat-main {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Центрируем по вертикали */
+  align-items: center; /* Центрируем по горизонтали */
+  background: #f9f9f9;
+  padding: 20px;
+  overflow: hidden; /* Убираем горизонтальный скролл */
+}
+
+/* Лого или заголовок в боковом меню */
+.logo {
+  font-size: 26px; /* ✅ Увеличиваем размер текста */
+  font-weight: bold;
+  padding: 10px 15px; /* ✅ Добавляем внутренние отступы */
+  border-radius: 10px; /* ✅ Делаем закругленные углы */
+  display: inline-block; /* ✅ Чтобы не растягивался */
+}
+
+/* Стили для списка чатов */
+.chat-list {
+  flex-grow: 1; /* Чтобы занимал всю доступную высоту */
+  overflow-y: auto; /* Если чатов много - скролл */
+  width: 100%; /* ✅ Ограничиваем ширину */
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Чат-контейнер */
+.chat-container {
+  width: 100%;
+  max-width: 800px; /* Ограничим ширину контента */
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  height: auto; /* Теперь высота адаптивная */
+  max-height: 80vh; /* Чтобы не выходило за границы экрана */
+}
+
+/* Сообщения в чате */
+.chat-messages {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-bottom: 10px;
+  max-height: 60vh;
+}
+
+/* Поле ввода */
+.chat-input {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background: #fff;
+  border-top: 1px solid #ddd;
+  width: 100%;
+}
+
+.chat-input input {
+  flex-grow: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  outline: none;
+}
+
+.chat-input button {
+  margin-left: 10px;
+  padding: 10px 15px;
+  border: none;
+  background: #007bff;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.chat-input button:hover {
+  background: #0056b3;
+}
+
+.create-chat-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  text-align: center;
+}
+
+/* Заголовок */
+.create-chat-title {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+/* Поле ввода */
+.create-chat-input {
+  width: 300px;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  outline: none;
+  margin-bottom: 10px;
+}
+
+/* Кнопка создания чата */
+.create-chat-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.create-chat-button:hover {
+  background-color: #0056b3;
+}
+
+/* Контейнер списка чатов */
+.chat-list-container {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  width: 100%;
+  overflow-x: hidden;
+  list-style: none;
+}
+
+/* Заголовок */
+.chat-list-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-align: left; /* ✅ Выравниваем текст влево */
+  align-self: flex-start; /* ✅ Гарантируем выравнивание внутри flex-контейнера */
+  width: 100%;
+  padding-left: 12px; /* ✅ Добавляем небольшой отступ от края */
+}
+
+/* Кнопка добавления чата */
+.chat-list-add-button {
+  position: absolute; /* ✅ Фиксируем в углу */
+  top: 10px;
+  left: 270px;
+  width: 42px; /* ✅ Размер кнопки */
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f2f2f2;
+  border-radius: 10px; /* ✅ Закругляем углы */
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+  font-size: 20px; /* ✅ Увеличиваем иконку */
+}
+
+.chat-list-add-button:hover {
+  background-color: #0056b3;
+}
+
+/* Список чатов */
+.chat-list {
+  width: 100%;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+chat-list::-webkit-scrollbar {
+  width: 6px; /* Тонкий скролл */
+}
+.chat-list::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2); /* Светлый цвет */
+  border-radius: 3px;
+}
+
+.chat-list::-webkit-scrollbar-track {
+  background: transparent; /* Скрываем фон скролла */
+}
+
+/* Элемент списка чатов */
+.chat-list-item {
+  width: 100%; /* ✅ Гарантируем, что элементы не выходят за границы */
+  padding: 5px 0px;
+  text-align: left;
+  white-space: nowrap; /* ✅ Предотвращаем перенос длинных названий */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Ссылка на чат */
+.chat-list-link {
+  display: flex;
+  margin: 1px auto; 
+  justify-content: space-between;
+  align-items: center;
+  width: 80%;
+  padding: 12px 15px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #000; /* Черный текст */
+  font-size: 16px;
+  font-weight: 500;
+  transition: background-color 0.2s ease-in-out;
+  scrollbar-width: thin; /* Уменьшаем толщину скролла */
+  scrollbar-color: transparent transparent; /* Делаем его почти невидимым */
+}
+
+.chat-list-link:hover {
+  background-color: #e0e0e0;
+  color: #000;
+}
+
+
+
+
+/* Если чатов нет */
+.chat-list-empty {
+  color: #777;
+  font-size: 16px;
+  text-align: center;
+}
+
+/* Контейнер кнопки выхода */
+.logout-container {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 22px; /* ✅ Увеличиваем размер */
+  font-weight: bold;
+  margin-left: 10px; /* ✅ Отступ от кнопки */
+}
+
+
+/* Стили кнопки выхода */
+.logout-button {
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.logout-button:hover {
+  background-color: #d9363e;
+}
+
+/* Контейнер логина */
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh; /* Центрируем по высоте экрана */
+  width: 100%;
+  text-align: center;
+}
+
+/* Заголовок */
+.login-title {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+/* Поля ввода */
+.login-input {
+  width: 300px;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  outline: none;
+  margin-bottom: 10px;
+}
+
+/* Ошибка */
+.login-error {
+  color: red;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+/* Кнопка входа */
+.login-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.login-button:hover {
+  background-color: #0056b3;
+}
+
+/* Иконка добавления нового чата */
+.chat-add-icon {
+  padding: 10px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+  margin-bottom: 15px;
+}
+
+.chat-add-icon:hover {
+  background: #e0e0e0;
+}
+
+.chat-add-icon svg {
+  color: #444;
 }

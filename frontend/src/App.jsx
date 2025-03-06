@@ -6,7 +6,6 @@ import Login from "./pages/Login";
 import Logout from "./pages/Logout";
 import ChatList from "./pages/ChatList";
 import CreateChatPage from "./pages/CreateChatPage";
-import "./App.css";
 
 const App = () => {
   const [authenticated, setAuthenticated] = useState(false);
@@ -45,21 +44,24 @@ const App = () => {
     <BrowserRouter> 
       <WebSocketProvider authenticated={authenticated}>
         <div className="app-container">
-          <h1 className="logo">Ваш Бот</h1>
           {authenticated ? (
             <>
-              <div className="chat-container">
-                <div className="chat-list">
+            <div className="logout-container">
+                <Logout setAuthenticated={setAuthenticated} />
+              </div>
+
+              <div className="chat-layout">
+                <div className="chat-sidebar">
+               
                   <ChatList chats={chats}/> 
                 </div>
-                <div className="main-content">
+                <div className="chat-main">
                   {<Routes>
                     <Route path="/chat/:chatId" element={<Chat />} /> 
                     <Route path="/" element={<CreateChatPage addChat={addChat}/>} />
                   </Routes>}
                 </div>
               </div>
-              <Logout setAuthenticated={setAuthenticated} /> 
             </>
           ) : (
             <Login setAuthenticated={setAuthenticated} />

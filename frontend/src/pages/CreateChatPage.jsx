@@ -49,15 +49,16 @@ const CreateChatPage = ({ addChat }) => {
   };
 
   return (
-    <div>
-      <h1>Чем могу помочь?</h1>
+    <div className="create-chat-container">
+      <h1 className="create-chat-title">Чем могу помочь?</h1>
       <input
         type="text"
         value={message}
+        className="create-chat-input"
         onChange={handleMessageChange}
         placeholder="Введите сообщение для чата"
       />
-      <button onClick={handleCreateChat}>Создать чат</button>
+      <button className="create-chat-button" onClick={handleCreateChat}>Создать чат</button>
     </div>
   );
 };
