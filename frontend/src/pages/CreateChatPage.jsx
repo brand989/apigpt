@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { useWebSocket } from '../WebSocketProvider'; 
+import { createChat, sendMessage } from "../api";
+
 
 const CreateChatPage = ({ addChat }) => {
   const [message, setMessage] = useState("");
@@ -17,23 +18,13 @@ const CreateChatPage = ({ addChat }) => {
       const chatName = message.split(" ").slice(0, 3).join(" "); // Название чата из первых трех слов сообщения
 
       try {
-        console.log(chatName,[userId])
-        const response = await axios.post("http://localhost:3000/api/chat/create", {
-          name: chatName,
-          users: [userId],
-        }, {
-            withCredentials: true,  
-          });
+        console.log("📢 Создаём чат:", chatName, "Пользователь:", userId);
 
-        const newChat = response.data;
+        // ✅ Создаём чат через API
+        const newChat = await createChat(chatName, userId);
 
-        // Создаем первое сообщение в чате
-        await axios.post("http://localhost:3000/api/message", {
-          chatId: newChat._id,
-          text: message,
-        }, {
-            withCredentials: true,  
-          });
+        /// ✅ Отправляем первое сообщение
+        await sendMessage(newChat._id, message);
 
         // Обновляем родительский компонент с новым chatId
         addChat(newChat);

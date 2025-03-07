@@ -6,6 +6,8 @@ import Login from "./pages/Login";
 import Logout from "./pages/Logout";
 import ChatList from "./pages/ChatList";
 import CreateChatPage from "./pages/CreateChatPage";
+import { checkAuth, getChats } from "./api"; 
+
 
 const App = () => {
   const [authenticated, setAuthenticated] = useState(false);
@@ -17,10 +19,7 @@ const App = () => {
   };
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/auth/check", {
-      credentials: "include",
-    })
-      .then((res) => res.json())
+    checkAuth()
       .then((data) => setAuthenticated(data.authenticated))
       .catch(() => setAuthenticated(false));
   }, []);
@@ -28,11 +27,7 @@ const App = () => {
   // Загружаем чаты при монтировании компонента через API
   useEffect(() => {
     if(authenticated) {
-      fetch("http://localhost:3000/api/chat", {
-        method: "GET",
-        credentials: "include",
-      })
-        .then((res) => res.json())
+      getChats()
         .then((data) => setChats(data))
         .catch((err) => console.error("Ошибка при загрузке чатов:", err));
     }

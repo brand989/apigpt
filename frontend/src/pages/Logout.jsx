@@ -1,14 +1,12 @@
 import React from "react";
 import { useWebSocket } from "../WebSocketProvider";
+import { logout } from "../api";
 
 const Logout = ({ setAuthenticated }) => {
   const { disconnect } = useWebSocket(); // ✅ Теперь не будет ошибки
 
   const handleLogout = async () => {
-    await fetch("http://localhost:3000/api/auth/logout", {
-      method: "POST",
-      credentials: "include",
-    });
+    await logout();
 
     disconnect(); // ✅ Закрываем WebSocket
     setAuthenticated(false);

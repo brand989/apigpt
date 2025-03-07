@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { getMessages, getChatInfo, checkAuth } from "../api";
 import { useParams } from "react-router-dom"; 
 import { useWebSocket } from "../WebSocketProvider"; 
 
@@ -22,24 +22,20 @@ const Chat = () => {
   useEffect(() => {
     const fetchChatInfo = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/chat/${chatId}`, {
-          withCredentials: true,
-        });
-        setChatName(response.data.name || "Без названия"); 
+        const chatData = await getChatInfo(chatId);
+        setChatName(chatData.name || "Без названия"); 
 
 
         // Создаём объект { userId: username }
         const userMap = {};
-        response.data.users.forEach(user => {
+        chatData.users.forEach(user => {
           userMap[user._id] = user.username;
         });
         setUsers(userMap);
 
-        // Получаем текущего пользователя
-        const userResponse = await axios.get("http://localhost:3000/api/auth/check", {
-          withCredentials: true,
-        });
-        setCurrentUserId(userResponse.data.userId);
+        // Загружаем ID текущего пользователя
+        const authData = await checkAuth();
+        setCurrentUserId(authData.userId)
 
 
       } catch (error) {
@@ -58,10 +54,8 @@ const Chat = () => {
     // Загружаем сообщения, связанные с текущим чатом
     const fetchMessages = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/message/${chatId}`, {
-          withCredentials: true,
-        });
-        setMsg(response.data);  
+        const messagesData = await getMessages(chatId);
+        setMsg(messagesData);
       } catch (error) {
         console.error("Ошибка при загрузке сообщений:", error);
       }

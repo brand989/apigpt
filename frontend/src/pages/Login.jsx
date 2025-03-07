@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import { login } from "../api"
+
+
 
 const Login = ({ setAuthenticated }) => {
   const [username, setUsername] = useState("");
@@ -9,16 +12,9 @@ const Login = ({ setAuthenticated }) => {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:3000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include", 
-        body: JSON.stringify({ username, password }),
-      });
+      const data = await login(username, password);
 
-      const data = await response.json();
-
-      if (!response.ok) {
+      if (data.error) {
         throw new Error(data.error || "Ошибка авторизации");
       }
 

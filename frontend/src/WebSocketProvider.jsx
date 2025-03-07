@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { checkAuth } from "./api";
 
 const WebSocketContext = createContext(null);
 
@@ -36,10 +37,7 @@ export const WebSocketProvider = ({ children, authenticated  }) => {
 
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/auth/check", {
-      credentials: "include",
-    })
-      .then((res) => res.json())
+    checkAuth()
       .then((data) => {
         if (data.authenticated) {
           const userId = data.userId;
@@ -105,8 +103,6 @@ export const WebSocketProvider = ({ children, authenticated  }) => {
       console.log("✅ WebSocket обновлён в состоянии:", socket);
     }
   }, [socket]);
-
-
 
 
   // ✅ Функция отправки сообщений
