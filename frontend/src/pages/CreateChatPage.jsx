@@ -48,6 +48,14 @@ const CreateChatPage = ({ addChat }) => {
     }
   };
 
+        // ✅ Обработчик нажатия Enter
+        const handleKeyDown = (event) => {
+            if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault(); // Предотвращаем перенос строки
+            handleCreateChat();
+            }
+        };
+
   return (
     <div className="create-chat-container">
       <h1 className="create-chat-title">Чем могу помочь?</h1>
@@ -56,6 +64,7 @@ const CreateChatPage = ({ addChat }) => {
         value={message}
         className="create-chat-input"
         onChange={handleMessageChange}
+        onKeyDown={handleKeyDown} 
         placeholder="Введите сообщение для чата"
       />
       <button className="create-chat-button" onClick={handleCreateChat}>Создать чат</button>

@@ -132,6 +132,12 @@ const Chat = () => {
           placeholder="Введите сообщение"
           value={text}
           onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault(); // Предотвращаем перенос строки
+              handleSendMessage();
+            }
+          }}
         />
         <button className="chat-send-button" onClick={handleSendMessage}>
           Отправить
