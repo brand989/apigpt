@@ -16,6 +16,20 @@ router.post("/", protect, async (req, res) => {
       return res.status(400).json({ error: "Чат и текст обязательны" });
     }
 
+    
+    // Получаем историю чата
+    const previousMessages = await Message.find({ chatId }).sort({ createdAt: 1 });
+
+    const chatHistory = previousMessages.map(msg => ({
+      role: msg.sender === "67c5c665154bda1f2ced00cf" ? "assistant" : "user",
+      content: msg.text
+   }));
+
+   // Добавляем текущее сообщение пользователя
+   chatHistory.push({ role: "user", content: text });
+
+   // Отправляем историю чата в OpenAI
+   const chatGptResponse = await getChatGPTResponse(chatHistory);
 
     const message = new Message({
       chatId,
@@ -25,8 +39,6 @@ router.post("/", protect, async (req, res) => {
 
     await message.save();
 
-    // Получаем ответ от ChatGPT
-    const chatGptResponse = await getChatGPTResponse(text);
 
     // Сохраняем ответ ChatGPT как сообщение
     const botMessage = new Message({
@@ -68,15 +80,18 @@ router.get("/:chatId", protect, async (req, res) => {
 
 
 
-async function getChatGPTResponse(message) {
+async function getChatGPTResponse(chatHistory) {
   const apiKey = process.env.OPENAI_API_KEY; // Загружаем API-ключ из переменной окружения
   
+  console.log("📜 Отправляем историю чата в OpenAI:", chatHistory);
+
+
   try {
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions", // URL для общения с OpenAI
       {
         model: "gpt-3.5-turbo",  // Используем модель "davinci" или "gpt-3.5-turbo"
-        messages: [{ role: "user", content: message }],           // Текст, который отправляется в ChatGPT
+        messages: chatHistory,           // Текст, который отправляется в ChatGPT
         max_tokens: 150,            // Максимальное количество токенов в ответе
         temperature: 0.7,           // Уровень случайности в ответах
       },
@@ -87,6 +102,8 @@ async function getChatGPTResponse(message) {
         },
       }
     );
+
+    console.log("🔍 Ответ от OpenAI:", response.data);
      // Логируем весь ответ для отладки
      console.log("Ответ от OpenAI:", response.data);
 

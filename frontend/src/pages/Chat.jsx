@@ -6,12 +6,17 @@ import { useWebSocket } from "../WebSocketProvider";
 const Chat = () => { 
   const { chatId } = useParams();
   const { sendMessage } = useWebSocket();
-  const { messages, setMessages } = useWebSocket();
+  const { messages, setMessages, setChatId } = useWebSocket();
   const [msg, setMsg] = useState([]);
   const [text, setText] = useState(""); 
   const [chatName, setChatName] = useState("Загрузка...");
   const [users, setUsers] = useState({});
   const [currentUserId, setCurrentUserId] = useState(null);
+
+  useEffect(() => {
+    setChatId(chatId); // ✅ Передаём chatId в WebSocketProvider
+  }, [chatId, setChatId]);
+
 
   // Загружаем название чата и пользователей
   useEffect(() => {

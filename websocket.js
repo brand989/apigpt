@@ -10,6 +10,9 @@ const setupWebSocket = (server) => {
   wss.on("connection", (ws, req) => {
     console.log("🔗 WebSocket-соединение запрашивается");
 
+    // Инициализируем chatId как null
+    ws.chatId = null;
+
     // ✅ Проверяем заголовок
     let authHeader = req.headers["sec-websocket-protocol"];
 
@@ -35,6 +38,14 @@ const setupWebSocket = (server) => {
       try {
         const data = JSON.parse(message);
         console.log("📩 Получено сообщение:", data);
+
+        // ✅ Клиент подписывается на определённый чат
+        if (data.type === "subscribe") {
+            ws.chatId = data.chatId;  // Сохраняем chatId у клиента
+            console.log(`✅ Клиент подписался на чат: ${ws.chatId}`);
+            return;
+        }
+        
 
         // ✅ Запрос истории сообщений
         if (data.type === "get_messages") {
@@ -65,6 +76,24 @@ const setupWebSocket = (server) => {
               return console.log("❌ Сообщение без текста или chatId");
             }
           
+            // 🔥 Загружаем ВСЮ историю сообщений этого чата
+            const chatHistory = await Message.find({ chatId }).sort({ createdAt: 1 });
+
+            // 🔄 Преобразуем историю в формат, который понимает OpenAI
+            const formattedMessages = chatHistory.map(msg => ({
+                role: msg.sender.toString() === "67c5c665154bda1f2ced00cf" ? "assistant" : "user",
+                content: msg.text
+            }));
+
+            // Добавляем последнее сообщение пользователя
+            formattedMessages.push({ role: "user", content: text });
+
+            console.log("📜 Отправляем историю чата в OpenAI:", formattedMessages);
+
+            // 🔥 Отправляем в OpenAI ВСЮ историю сообщений
+            const chatGptResponse = await getChatGPTResponse(formattedMessages)
+
+
             const newMessage = new Message({
               sender: ws.userId,
               chatId,  // Добавляем chatId
@@ -76,7 +105,7 @@ const setupWebSocket = (server) => {
 
           // Здесь должен быть запрос к OpenAI, чтобы получить ответ
 
-            const chatGptResponse = await getChatGPTResponse(text); // Нужно добавить этот запрос
+
 
             // После получения ответа от OpenAI добавляем его как новое сообщение
             const botMessage = new Message({
@@ -92,7 +121,8 @@ const setupWebSocket = (server) => {
 
             // Отправляем сообщение всем подключенным клиентам
             wss.clients.forEach((client) => {
-              if (client.readyState === WebSocket.OPEN) {
+              if (client.readyState === WebSocket.OPEN && client.chatId === chatId) {
+                console.log("📢 Отправляем сообщение клиентам чата:", newMessage.chatId);
                 client.send(JSON.stringify({ type: "new_message", data: newMessage }));
               }
             });
@@ -113,6 +143,8 @@ const setupWebSocket = (server) => {
     });
   });
 
+
+
 // Отслеживаем изменения в базе данных и отправляем новое сообщение всем подписанным пользователям
 Message.watch().on('change', (change) => {
     console.log("🔄 Изменение в базе данных:", change);
@@ -126,21 +158,18 @@ Message.watch().on('change', (change) => {
     }
   });
 
-
-
-
   return wss;
 };
 
-async function getChatGPTResponse(message) {
+async function getChatGPTResponse(messages) {
     const apiKey = process.env.OPENAI_API_KEY; // Загружаем API-ключ из переменной окружения
     
     try {
       const response = await axios.post(
         "https://api.openai.com/v1/chat/completions", // URL для общения с OpenAI
         {
-          model: "gpt-3.5-turbo",  // Используем модель "davinci" или "gpt-3.5-turbo"
-          messages: [{ role: "user", content: message }],           // Текст, который отправляется в ChatGPT
+          model: "gpt-3.5-turbo",  // Используем модель "gpt-3.5-turbo"
+          messages: messages,          // 🔥 Передаём ВСЮ историю
           max_tokens: 150,            // Максимальное количество токенов в ответе
           temperature: 0.7,           // Уровень случайности в ответах
         },

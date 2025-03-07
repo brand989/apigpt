@@ -2,11 +2,37 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 const WebSocketContext = createContext(null);
 
-export const WebSocketProvider = ({ children, authenticated }) => {
+export const WebSocketProvider = ({ children, authenticated  }) => {
   const [socket, setSocket] = useState(null);
   const [messages, setMessages] = useState([]);
   const [userId, setUserId] = useState(null); 
   const [chats, setChats] = useState([]);
+  const [chatId, setChatId] = useState(null);
+
+
+
+
+  useEffect(() => {
+    if (socket && chatId) {
+      console.log("🔄 Попытка подписаться на чат:", chatId);
+      
+      if (socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({ type: "subscribe", chatId }));
+          console.log("📡 Подписка отправлена:", chatId);
+          setMessages([]); // Очищаем сообщения
+      } else {
+          console.warn("⏳ WebSocket ещё не подключен. Ожидаем...");
+          
+          socket.onopen = () => {
+              console.log("✅ WebSocket теперь открыт, подписываемся на чат:", chatId);
+              socket.send(JSON.stringify({ type: "subscribe", chatId }));
+              setMessages([]);
+          };
+      }
+  }
+}, [chatId, socket]);
+
+
 
 
   useEffect(() => {
@@ -23,14 +49,24 @@ export const WebSocketProvider = ({ children, authenticated }) => {
 
           ws.onopen = () => {
             console.log("✅ WebSocket подключен");
+
+            // Подписываемся на нужный чат
+            ws.send(JSON.stringify({ type: "subscribe", chatId }));
+
             setSocket(ws);
+
+            if (chatId) {
+              ws.send(JSON.stringify({ type: "subscribe", chatId }));
+              console.log("📡 Подписка на чат:", chatId);
+          }
+
           };
 
           ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
 
             if (data.type === "new_message") {
-              
+
               // Добавляем новое сообщение в список, если оно не дублируется
               setMessages((prevMessages) => {
                 // Проверяем, что сообщение не дублируется по _id
@@ -71,6 +107,8 @@ export const WebSocketProvider = ({ children, authenticated }) => {
   }, [socket]);
 
 
+
+
   // ✅ Функция отправки сообщений
   const sendMessage = (chatId, text) => {
     console.log("📨 Попытка отправить сообщение...", socket);
@@ -100,7 +138,7 @@ export const WebSocketProvider = ({ children, authenticated }) => {
 
 
   return (
-    <WebSocketContext.Provider value={{ socket, messages, sendMessage, userId , chats, disconnect }}>
+    <WebSocketContext.Provider value={{ socket, messages, sendMessage, userId , chats, setChatId, disconnect }}>
       {children}
     </WebSocketContext.Provider>
   );
