@@ -38,6 +38,7 @@ router.post("/login", async (req, res) => {
       secure: process.env.NODE_ENV === "production", // Только HTTPS в проде
       sameSite: "Strict", // Защита от CSRF
       maxAge: 60 * 60 * 1000, // 1 час
+      domain: process.env.COOKIE_DOMAIN, 
     });
 
     res.json({ token });
