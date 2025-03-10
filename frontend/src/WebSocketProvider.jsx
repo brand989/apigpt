@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { checkAuth } from "./api";
 
 const WebSocketContext = createContext(null);
-const WS_URL = import.meta.env.VITE_WS_URL || "ws://localhost:3000"; 
+const wsUrl = import.meta.env.VITE_WS_URL || "ws://localhost:3000";
 
 export const WebSocketProvider = ({ children, authenticated  }) => {
   const [socket, setSocket] = useState(null);
@@ -44,7 +44,7 @@ export const WebSocketProvider = ({ children, authenticated  }) => {
           const userId = data.userId;
           setUserId(userId); 
 
-          const ws = new WebSocket(`${WS_URL}`, ["User_" + userId]);
+          const ws = new WebSocket(wsUrl, ["User_" + userId]);
 
           ws.onopen = () => {
             console.log("✅ WebSocket подключен");
