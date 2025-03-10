@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { checkAuth } from "./api";
 
 const WebSocketContext = createContext(null);
-const wsUrl = import.meta.env.VITE_WS_URL || "ws://localhost:3000";
+const wsUrl = import.meta.env.VITE_WS_URL;
 
 export const WebSocketProvider = ({ children, authenticated  }) => {
   const [socket, setSocket] = useState(null);
