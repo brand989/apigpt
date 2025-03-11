@@ -44,6 +44,7 @@ router.post("/login", async (req, res) => {
       domain: process.env.COOKIE_DOMAIN, 
     });
 
+    console.log("Set cookie:", res.getHeader('Set-Cookie'));
     res.json({ token });
   } catch (error) {
     console.error("Ошибка авторизации:", error);
