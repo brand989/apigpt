@@ -39,7 +39,7 @@ router.post("/login", async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true,  // Защита от XSS
       secure: process.env.NODE_ENV === "production", // Только HTTPS в проде
-      sameSite: "Strict", // Защита от CSRF
+      sameSite: "None",
       maxAge: 60 * 60 * 1000, // 1 час
       domain: process.env.COOKIE_DOMAIN, 
     });
