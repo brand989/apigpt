@@ -32,6 +32,9 @@ router.post("/login", async (req, res) => {
       expiresIn: "7d",
     });
 
+    // Логируем токен перед отправкой
+    console.log("🔑 Токен: ", token);
+
     // 🔒 Отправляем токен в HTTP-only cookie
     res.cookie("token", token, {
       httpOnly: true,  // Защита от XSS
@@ -52,6 +55,8 @@ router.post("/login", async (req, res) => {
 
 router.get("/check", (req, res) => {
   const token = req.cookies?.token; // ✅ Читаем токен из куков
+  console.log("🔑 Токен из куки:", token);
+
 
   if (!token) {
     return res.json({ authenticated: false });
