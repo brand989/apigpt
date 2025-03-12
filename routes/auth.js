@@ -39,9 +39,9 @@ router.post("/login", async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true,  // Защита от XSS
       secure: process.env.NODE_ENV === "production", // Только HTTPS в проде
-      sameSite: "None",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // Локально Lax, в проде None
       maxAge: 60 * 60 * 1000, // 1 час
-      domain: process.env.COOKIE_DOMAIN, 
+      domain: process.env.NODE_ENV === "production" ? process.env.COOKIE_DOMAIN : "", // Пустой домен на локалке
     });
 
     console.log("Set cookie:", res.getHeader('Set-Cookie'));
